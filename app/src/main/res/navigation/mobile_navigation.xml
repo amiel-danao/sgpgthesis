@@ -37,4 +37,9 @@
         android:name="com.example.sgpgthesis.CartFragment"
         android:label="@string/my_cart"
         tools:layout="@layout/fragment_cart" />
+    <fragment
+        android:id="@+id/nav_orders"
+        android:name="com.example.sgpgthesis.OrderFragment"
+        android:label="@string/my_orders"
+        tools:layout="@layout/fragment_cart" />
 </navigation>

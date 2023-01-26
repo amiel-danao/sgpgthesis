@@ -21,4 +21,6 @@
     <string name="description">Description</string>
     <string name="Cart">fragment_cart</string>
     <string name="my_cart">My Cart</string>
+    <string name="my_orders">My Orders</string>
+    <string name="logout">Log Out</string>
 </resources>

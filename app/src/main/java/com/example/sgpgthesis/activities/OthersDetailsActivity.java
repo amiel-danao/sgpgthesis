@@ -1,9 +1,11 @@
 package com.example.sgpgthesis.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import com.example.sgpgthesis.R;
 import com.example.sgpgthesis.adapters.NavOthersAdapter;
 import com.example.sgpgthesis.models.NavDrinkwareModel;
 import com.example.sgpgthesis.models.NavOthersModel;
+import com.google.android.gms.cast.framework.media.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -31,6 +34,8 @@ import com.google.firebase.storage.UploadTask;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+
+
 
 public class OthersDetailsActivity extends AppCompatActivity {
 
@@ -134,6 +139,9 @@ public class OthersDetailsActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
 
     private void uploadImage() {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference("product/" + id + ".png");

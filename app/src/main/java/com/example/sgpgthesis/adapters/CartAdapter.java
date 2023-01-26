@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.sgpgthesis.CartFragment;
 import com.example.sgpgthesis.R;
 import com.example.sgpgthesis.models.CartModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,11 +32,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     FirebaseFirestore db;
     FirebaseAuth auth;
+    CartFragment cartFragment;
 
-    public CartAdapter(Context context, List<CartModel> list) {
+    public CartAdapter(Context context, CartFragment cartFragment, List<CartModel> list) {
         this.context = context;
         this.list = list;
-
+        this.cartFragment = cartFragment;
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
     }
@@ -58,8 +60,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         holder.deleteItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                db.collection("CurrentUser").document(auth.getCurrentUser().getUid())
-                        .collection("AddToCart")
+
+
+
+                db.collection("AddToCart").document(auth.getCurrentUser().getUid())
+                        .collection("CurrentUser")
                         .document(list.get(holder.getAdapterPosition()).getDocumentId())
                         .delete()
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -67,6 +72,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
                                     list.remove(list.get(holder.getAdapterPosition()));
+                                    cartFragment.calculateTotalAmount(list);
                                     notifyDataSetChanged();
                                     Toast.makeText(context,"Item Deleted", Toast.LENGTH_SHORT).show();
                                 }
@@ -78,6 +84,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             }
         });
     }
+
+
 
     @Override
     public int getItemCount() {

@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sgpgthesis.MainActivity;
 import com.example.sgpgthesis.R;
 import com.example.sgpgthesis.ui.home.HomeFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -85,11 +86,15 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, "Login Successfully", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
+
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            Toast.makeText(LoginActivity.this, "Redirecting to the application", Toast.LENGTH_SHORT).show();
+                            finish();
+
                         } else {
-                            progressBar.setVisibility(View.GONE);
                             Toast.makeText(LoginActivity.this, "Error: " + task.getException(), Toast.LENGTH_SHORT).show();
                         }
                     }

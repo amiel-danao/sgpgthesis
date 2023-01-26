@@ -8,19 +8,30 @@ public class CartModel implements Serializable {
     String currentDate;
     String currentTime;
     String totalQuantity;
+    String image;
     String documentId;
     int totalPrice;
 
     public CartModel() {
     }
 
-    public CartModel(String productName, String productPrice, String currentDate, String currentTime, String totalQuantity, int totalPrice) {
+    public CartModel(String productName, String productPrice, String currentDate, String currentTime, String totalQuantity, String image, String documentId, int totalPrice) {
         this.productName = productName;
         this.productPrice = productPrice;
         this.currentDate = currentDate;
         this.currentTime = currentTime;
         this.totalQuantity = totalQuantity;
+        this.image = image;
+        this.documentId = documentId;
         this.totalPrice = totalPrice;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getDocumentId() {

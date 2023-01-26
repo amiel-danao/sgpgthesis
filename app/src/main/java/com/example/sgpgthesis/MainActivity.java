@@ -1,11 +1,15 @@
 package com.example.sgpgthesis;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.sgpgthesis.activities.HomeActivity;
+import com.example.sgpgthesis.activities.LoginActivity;
 import com.example.sgpgthesis.models.UserModel;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -27,7 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     FirebaseAuth auth;
     FirebaseDatabase db;
@@ -40,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null){
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(i);
+        }
+
         db = FirebaseDatabase.getInstance();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -52,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_drinkware, R.id.nav_others, R.id.nav_profile, R.id.nav_aboutUs)
+                R.id.nav_home, R.id.nav_drinkware, R.id.nav_others, R.id.nav_profile, R.id.nav_orders, R.id.nav_aboutUs)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -94,5 +103,16 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.nav_logout)
+        {
+            FirebaseAuth.getInstance().signOut();
+            Intent i=new Intent(getApplicationContext(), HomeActivity.class);
+            startActivity(i);
+        }
+        return false;
     }
 }

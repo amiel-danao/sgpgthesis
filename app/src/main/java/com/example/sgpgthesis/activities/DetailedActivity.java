@@ -1,9 +1,16 @@
 package com.example.sgpgthesis.activities;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +22,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.sgpgthesis.R;
-import com.example.sgpgthesis.models.ProductModel;
 import com.example.sgpgthesis.models.ViewAllModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,7 +41,7 @@ public class DetailedActivity extends AppCompatActivity {
 
     ImageView detailedImg;
     TextView price,rating,description,quantity;
-    Button addToCart,uploadPic;
+    Button addToCart,uploadPic, removeDesignButton;
     ImageView addItem,removeItem,image;
 
     private String id,title;
@@ -50,6 +56,7 @@ public class DetailedActivity extends AppCompatActivity {
     FirebaseAuth auth;
 
     ViewAllModel viewAllModel = null;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,7 @@ public class DetailedActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        context = getApplicationContext();
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -76,15 +84,18 @@ public class DetailedActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-                startActivityForResult(intent, 100);
+                imagePickerLauncher.launch(intent);
+//                startActivityForResult(intent, 100);
             }
         });
 
         uploadPic = findViewById(R.id.uploadPic);
-        uploadPic.setOnClickListener(new View.OnClickListener() {
+        removeDesignButton = findViewById(R.id.removeDesignButton);
+        removeDesignButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadImage();
+                uri = null;
+                image.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_upload));
             }
         });
 
@@ -115,44 +126,65 @@ public class DetailedActivity extends AppCompatActivity {
         addItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (totalQuantity < 10) {
-                    totalQuantity++;
-                    quantity.setText(String.valueOf(totalQuantity));
-                }
+                totalQuantity = Math.min(10, totalQuantity+1);
+                totalPrice = viewAllModel.getPrice() * totalQuantity;
+                quantity.setText(String.valueOf(totalQuantity));
             }
         });
 
         removeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (totalQuantity > 1) {
-                    totalQuantity--;
-                    quantity.setText(String.valueOf(totalQuantity));
-                    totalPrice = viewAllModel.getPrice() * totalQuantity;
-                }
+                totalQuantity = Math.max(1, totalQuantity-1);
+                totalPrice = viewAllModel.getPrice() * totalQuantity;
+                quantity.setText(String.valueOf(totalQuantity));
             }
         });
     }
 
-    private void uploadImage() {
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference("product/" + id + ".png");
-        storageReference.putFile(uri)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        storageReference.getDownloadUrl()
-                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        FirebaseFirestore.getInstance()
-                                                .collection("product")
-                                                .document(id)
-                                                .update("image", uri.toString());
-                                        Toast.makeText(DetailedActivity.this, "Done", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+
+    ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // Here, no request code
+                        Intent data = result.getData();
+
+                        if (data.getData() != null){
+                            Uri profileUri = data.getData();
+                            uri = profileUri;
+                            Glide.with(getApplicationContext()).load(profileUri).into(image);
+                        } else {
+                            Toast.makeText(context, "Error selecting an image", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                });
+                }
+            });
+
+
+
+    private void uploadImage(String cartItemId) {
+        String path = String.format("%s/%s/%s.png", "product_designs", auth.getUid(), cartItemId);
+
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference(path);
+
+        storageReference.putFile(uri)
+                .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            FirebaseFirestore.getInstance()
+                                    .collection("AddToCart")
+                                    .document(auth.getUid())
+                                    .collection("currentUser")
+                                    .document(cartItemId)
+                                    .update("image", uri.toString());
+
+                            Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
+                            DoneAddToCart();
+                        }).addOnFailureListener((e) -> {
+                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }));
     }
 
     private void addedToCart() {
@@ -171,16 +203,26 @@ public class DetailedActivity extends AppCompatActivity {
         cartMap.put("productPrice",price.getText().toString());
         cartMap.put("currentDate",saveCurrentDate);
         cartMap.put("currentTime",saveCurrentTime);
-        cartMap.put("totalQuantity",quantity.getText().toString());
-        cartMap.put("totalPrice",totalPrice);
+        cartMap.put("totalQuantity", String.valueOf(totalQuantity));
+        cartMap.put("totalPrice", totalPrice);
 
-        db.collection("CurrentUser").document(auth.getCurrentUser().getUid())
-                .collection("AddToCart").add(cartMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        Toast.makeText(DetailedActivity.this, "Added To A Cart", Toast.LENGTH_SHORT).show();
-                        finish();
+        db.collection("AddToCart").document(auth.getCurrentUser().getUid())
+            .collection("CurrentUser").add(cartMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentReference> task) {
+                    if (uri == null){
+                        DoneAddToCart();
                     }
-                });
+                    else{
+                        uploadImage(task.getResult().getId());
+                    }
+
+                }
+            });
+    }
+
+    private void DoneAddToCart(){
+        Toast.makeText(context, "Added To A Cart", Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

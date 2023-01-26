@@ -25,8 +25,16 @@
             android:icon="@drawable/cart1"
             android:title="My Cart" />
         <item
+            android:id="@+id/nav_orders"
+            android:icon="?attr/actionModePasteDrawable"
+            android:title="@string/my_orders" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="?attr/actionModePasteDrawable"
+            android:title="@string/my_orders" />
+        <item
             android:id="@+id/nav_aboutUs"
-            android:icon="@drawable/info"
+            android:icon="@drawable/logout"
             android:title="About Us" />
     </group>
 </menu>
