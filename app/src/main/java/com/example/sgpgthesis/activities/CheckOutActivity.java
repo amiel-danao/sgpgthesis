@@ -4,9 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.example.sgpgthesis.MainActivity;
 import com.example.sgpgthesis.R;
 import com.example.sgpgthesis.models.CartModel;
 import com.example.sgpgthesis.models.OrderModel;
@@ -15,8 +17,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,17 +61,23 @@ public class CheckOutActivity extends AppCompatActivity {
                 cartMap.put("currentTime",model.getCurrentTime());
                 cartMap.put("totalQuantity",model.getTotalQuantity());
                 cartMap.put("totalPrice",model.getTotalPrice());
+                cartMap.put("image",model.getImage());
 
                 items.add(cartMap);
                 totalPrice += model.getTotalPrice();
+
+
+                DocumentReference cartRef = db.collection("AddToCart").document(auth.getCurrentUser().getUid())
+                        .collection("CurrentUser").document(model.getDocumentId());
+                batch.delete(cartRef);
             }
 
             newOrder.setItems(items);
             newOrder.setStatus("Pending");
             newOrder.setTotalPrice(totalPrice);
-            DocumentReference newOrderRef =db.collection("Orders").document(auth.getCurrentUser().getUid())
+            DocumentReference newOrderRef = db.collection("Orders").document(auth.getCurrentUser().getUid())
                     .collection("CurrentUser").document();
-            batch.set(newOrderRef, newOrder);
+            batch.set(newOrderRef, newOrder, SetOptions.merge());
             // Commit the batch
             batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -82,7 +92,13 @@ public class CheckOutActivity extends AppCompatActivity {
                 }
             });
         }
+    }
 
-
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(context, MainActivity.class);
+        startActivity(intent);
+        finish();
+//        super.onBackPressed();
     }
 }

@@ -181,6 +181,16 @@
             android:layout_marginTop="10dp"
             android:src="@drawable/trash"/>
 
+        <ImageView
+            android:id="@+id/design_preview_button"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:visibility="gone" />
+
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -23,12 +23,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.sgpgthesis.R;
 import com.example.sgpgthesis.models.ViewAllModel;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -57,6 +59,7 @@ public class DetailedActivity extends AppCompatActivity {
 
     ViewAllModel viewAllModel = null;
     Context context;
+    View loadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +109,7 @@ public class DetailedActivity extends AppCompatActivity {
         price = findViewById(R.id.detailed_price);
         rating = findViewById(R.id.detailed_rating);
         description = findViewById(R.id.detailed_desc);
+        loadingIndicator = findViewById(R.id.loadingIndicator);
 
         if (viewAllModel != null){
             Glide.with(getApplicationContext()).load(viewAllModel.getImg_url()).into(detailedImg);
@@ -170,24 +174,48 @@ public class DetailedActivity extends AppCompatActivity {
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference(path);
 
-        storageReference.putFile(uri)
-                .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                        .addOnSuccessListener(uri -> {
-                            FirebaseFirestore.getInstance()
-                                    .collection("AddToCart")
-                                    .document(auth.getUid())
-                                    .collection("currentUser")
-                                    .document(cartItemId)
-                                    .update("image", uri.toString());
+        UploadTask uploadTask = storageReference.putFile(uri);
 
-                            Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
-                            DoneAddToCart();
-                        }).addOnFailureListener((e) -> {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }));
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return storageReference.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("image", downloadUri.toString());
+                    FirebaseFirestore.getInstance()
+                            .collection("AddToCart")
+                            .document(auth.getUid())
+                            .collection("CurrentUser")
+                            .document(cartItemId)
+                            .set(map, SetOptions.merge());
+
+                    Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show();
+
+                    DoneAddToCart();
+                } else {
+                    // Handle failures
+                    // ...
+                    Toast.makeText(context, task.getResult().toString(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void addedToCart() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+
         String saveCurrentDate, saveCurrentTime;
         Calendar calForDate = Calendar.getInstance();
 
@@ -221,7 +249,10 @@ public class DetailedActivity extends AppCompatActivity {
             });
     }
 
+
+
     private void DoneAddToCart(){
+        loadingIndicator.setVisibility(View.GONE);
         Toast.makeText(context, "Added To A Cart", Toast.LENGTH_SHORT).show();
         finish();
     }

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".CartFragment">
+    android:clipChildren="false"
+    android:clipToPadding="true"
+    tools:context=".OrderFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -12,7 +14,7 @@
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint1"
@@ -34,35 +36,37 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintVertical_bias="0"
             android:fontFamily="@font/averia_serif_libre_light"
-            android:textAlignment="center"
             android:text="Your Cart is Empty"
+            android:textAlignment="center"
             android:textColor="@color/green"
             android:textSize="22sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/empty_cart" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraint2"
+
+    <ExpandableListView
+        android:id="@+id/expandableListViewSample"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
-            android:layout_marginRight="7dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        android:clickable="false"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:indicatorLeft="0dip"
+        android:indicatorRight="3dip"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </RelativeLayout>

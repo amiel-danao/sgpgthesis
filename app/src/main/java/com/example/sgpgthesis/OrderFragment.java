@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -13,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.sgpgthesis.adapters.CustomizedExpandableListAdapter;
 import com.example.sgpgthesis.adapters.OrderAdapter;
 import com.example.sgpgthesis.models.CartModel;
 import com.example.sgpgthesis.models.OrderModel;
@@ -24,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class OrderFragment extends Fragment {
@@ -40,6 +44,12 @@ public class OrderFragment extends Fragment {
     List<OrderModel> list;
 
     ProgressBar progressBar;
+
+    ExpandableListView expandableListViewExample;
+    ExpandableListAdapter expandableListAdapter;
+
+    List<OrderModel> expandableTitleList;
+    HashMap<OrderModel, List<HashMap<String, Object>>> expandableDetailList;
 
 
     public OrderFragment() {
@@ -61,14 +71,13 @@ public class OrderFragment extends Fragment {
 
         overTotalAmount = root.findViewById(R.id.textView7);
 
-        recyclerView = root.findViewById(R.id.recyclerView);
-        recyclerView.setVisibility(View.GONE);
         checkOut = root.findViewById(R.id.check_out);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        expandableListViewExample = root.findViewById(R.id.expandableListViewSample);
 
-        list = new ArrayList<>();
-        orderAdapter = new OrderAdapter(getActivity(), this, list);
-        recyclerView.setAdapter(orderAdapter);
+        expandableTitleList = new ArrayList<>();
+        expandableDetailList = new HashMap<>();
+
+
 
         db.collection("Orders").document(auth.getCurrentUser().getUid())
                 .collection("CurrentUser").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -77,30 +86,22 @@ public class OrderFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()){
 
-
-
                                 OrderModel order = documentSnapshot.toObject(OrderModel.class);
                                 String documentId = documentSnapshot.getId();
                                 order.setDocumentId(documentId);
 
-                                list.add(order);
-//                                CartModel cartModel = documentSnapshot.toObject(CartModel.class);
-//                                cartModel.setDocumentId(documentId);
-//
-//                                list.add(cartModel);
-//                                cartAdapter.notifyDataSetChanged();
-//                                progressBar.setVisibility(View.GONE);
-//                                recyclerView.setVisibility(View.VISIBLE);
+                                expandableTitleList.add(order);
+                                expandableDetailList.put(order, order.getItems());
                             }
-
-                            orderAdapter.notifyDataSetChanged();
-                            recyclerView.setVisibility(View.VISIBLE);
+                            expandableListViewExample.invalidateViews();
                             progressBar.setVisibility(View.GONE);
-
-//                            calculateTotalAmount(list);
                         }
                     }
                 });
+
+        expandableListAdapter = new CustomizedExpandableListAdapter(getActivity(), expandableTitleList, expandableDetailList);
+        expandableListViewExample.setAdapter(expandableListAdapter);
+
 
 
         return root;

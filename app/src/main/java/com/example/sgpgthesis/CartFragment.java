@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.sgpgthesis.activities.CheckOutActivity;
 import com.example.sgpgthesis.adapters.CartAdapter;
@@ -90,10 +91,11 @@ public class CartFragment extends Fragment {
                                 cartModel.setDocumentId(documentId);
 
                                 list.add(cartModel);
-                                cartAdapter.notifyDataSetChanged();
-                                progressBar.setVisibility(View.GONE);
-                                recyclerView.setVisibility(View.VISIBLE);
                             }
+
+                            cartAdapter.notifyDataSetChanged();
+                            recyclerView.setVisibility(View.VISIBLE);
+                            progressBar.setVisibility(View.GONE);
 
                             calculateTotalAmount(list);
                         }
@@ -103,12 +105,25 @@ public class CartFragment extends Fragment {
         checkOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (list.isEmpty()){
+                    Toast.makeText(getContext(), "Your cart is empty!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent intent = new Intent(getContext(), CheckOutActivity.class);
                 intent.putExtra("itemList", (Serializable) list);
                 startActivity(intent);
+
             }
         });
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (cartAdapter != null){
+            cartAdapter.notifyDataSetChanged();
+        }
     }
 
     public void calculateTotalAmount(List<CartModel> list) {

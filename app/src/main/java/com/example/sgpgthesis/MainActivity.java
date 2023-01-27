@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -15,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -31,7 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity{
 
     FirebaseAuth auth;
     FirebaseDatabase db;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (auth.getCurrentUser() == null){
             Intent i = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(i);
+            finish();
         }
 
         db = FirebaseDatabase.getInstance();
@@ -64,9 +67,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 R.id.nav_home, R.id.nav_drinkware, R.id.nav_others, R.id.nav_profile, R.id.nav_orders, R.id.nav_aboutUs)
                 .setOpenableLayout(drawer)
                 .build();
+
+
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+//        NavigationUI.setupWithNavController(navigationView, navController);
+
+
+
+        navigationView.setNavigationItemSelectedListener(new
+         NavigationView.OnNavigationItemSelectedListener() {
+             @Override
+             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                 if (item.getItemId() == R.id.nav_logout)
+                 {
+                     FirebaseAuth.getInstance().signOut();
+                     Intent i=new Intent(getApplicationContext(), HomeActivity.class);
+                     startActivity(i);
+                     finish();
+                 }
+                 else{
+                     NavigationUI.onNavDestinationSelected(item, navController);
+                 }
+
+                 ViewParent parent = navigationView.getParent();
+                 if (parent instanceof DrawerLayout) {
+                     ((DrawerLayout) parent).closeDrawer(navigationView);
+                 }
+                 return false;
+             }
+         });
 
         View headerView = navigationView.getHeaderView(0);
         TextView headerName = headerView.findViewById(R.id.nav_header_name);
@@ -89,6 +120,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     }
                 });
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null){
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
     }
 
     @Override
@@ -103,16 +152,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.nav_logout)
-        {
-            FirebaseAuth.getInstance().signOut();
-            Intent i=new Intent(getApplicationContext(), HomeActivity.class);
-            startActivity(i);
-        }
-        return false;
     }
 }

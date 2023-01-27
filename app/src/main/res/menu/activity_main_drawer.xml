@@ -30,11 +30,11 @@
             android:title="@string/my_orders" />
         <item
             android:id="@+id/nav_logout"
-            android:icon="?attr/actionModePasteDrawable"
-            android:title="@string/my_orders" />
+            android:icon="@drawable/logout"
+            android:title="@string/logout" />
         <item
             android:id="@+id/nav_aboutUs"
-            android:icon="@drawable/logout"
+            android:icon="@drawable/info"
             android:title="About Us" />
     </group>
 </menu>
