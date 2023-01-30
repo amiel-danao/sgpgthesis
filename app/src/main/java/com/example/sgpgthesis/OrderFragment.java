@@ -36,12 +36,7 @@ public class OrderFragment extends Fragment {
     FirebaseAuth auth;
 
     TextView overTotalAmount;
-    int totalBill;
     Button checkOut;
-
-    RecyclerView recyclerView;
-    OrderAdapter orderAdapter;
-    List<OrderModel> list;
 
     ProgressBar progressBar;
 
@@ -99,7 +94,7 @@ public class OrderFragment extends Fragment {
                     }
                 });
 
-        expandableListAdapter = new CustomizedExpandableListAdapter(getActivity(), expandableTitleList, expandableDetailList);
+        expandableListAdapter = new CustomizedExpandableListAdapter(getActivity(), this, expandableTitleList, expandableDetailList);
         expandableListViewExample.setAdapter(expandableListAdapter);
 
 

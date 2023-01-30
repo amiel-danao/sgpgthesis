@@ -56,6 +56,8 @@ public class CheckOutActivity extends AppCompatActivity {
                 final HashMap<String,Object> cartMap = new HashMap<>();
 
                 cartMap.put("productName",model.getProductName());
+                cartMap.put("productImage",model.getProductImage());
+                cartMap.put("productDescription",model.getProductDescription());
                 cartMap.put("productPrice",model.getProductPrice());
                 cartMap.put("currentDate",model.getCurrentDate());
                 cartMap.put("currentTime",model.getCurrentTime());

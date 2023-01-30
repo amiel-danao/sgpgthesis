@@ -194,6 +194,7 @@ public class DetailedActivity extends AppCompatActivity {
 
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("image", downloadUri.toString());
+                    map.put("productImage", viewAllModel.getImg_url());
                     FirebaseFirestore.getInstance()
                             .collection("AddToCart")
                             .document(auth.getUid())
@@ -229,6 +230,7 @@ public class DetailedActivity extends AppCompatActivity {
 
         cartMap.put("productName",viewAllModel.getName());
         cartMap.put("productPrice",price.getText().toString());
+        cartMap.put("productDescription", viewAllModel.getDescription());
         cartMap.put("currentDate",saveCurrentDate);
         cartMap.put("currentTime",saveCurrentTime);
         cartMap.put("totalQuantity", String.valueOf(totalQuantity));

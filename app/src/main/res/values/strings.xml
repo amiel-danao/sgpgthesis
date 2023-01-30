@@ -23,4 +23,15 @@
     <string name="my_cart">My Cart</string>
     <string name="my_orders">My Orders</string>
     <string name="logout">Log Out</string>
+    <string name="gender_text">gender</string>
+    <string name="resend_email_text">Didn\'t receive an email?\nClick here to resend email verification</string>
+    <string name="product_label">Product</string>
+    <string name="design_label">Design</string>
+    <string name="peso_sign">₱%1$s</string>
+    <string name="order_date">Order Date%1$s</string>
+    <string name="quantity_label">Qty</string>
+    <string name="price_label">Price</string>
+    <string name="x">x</string>
+    <string name="shipping_information_label">Shipping Information</string>
+    <string name="item_label">%1$d item%2$s</string>
 </resources>

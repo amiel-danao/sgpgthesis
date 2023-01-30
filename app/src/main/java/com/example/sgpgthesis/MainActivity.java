@@ -7,15 +7,19 @@ import android.view.View;
 import android.view.Menu;
 import android.view.ViewParent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.sgpgthesis.activities.HomeActivity;
 import com.example.sgpgthesis.activities.LoginActivity;
 import com.example.sgpgthesis.models.UserModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity{
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+    private UserModel userModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +59,7 @@ public class MainActivity extends AppCompatActivity{
 
         db = FirebaseDatabase.getInstance();
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);
@@ -88,7 +93,11 @@ public class MainActivity extends AppCompatActivity{
                      finish();
                  }
                  else{
-                     NavigationUI.onNavDestinationSelected(item, navController);
+                     Bundle bundle = new Bundle();
+                     bundle.putParcelable("user", userModel);
+//                     Navigation.findNavController(view).navigate(action);
+                     navController.navigate(item.getItemId(), bundle);
+                     //NavigationUI.onNavDestinationSelected(item, navController);
                  }
 
                  ViewParent parent = navigationView.getParent();
@@ -99,20 +108,25 @@ public class MainActivity extends AppCompatActivity{
              }
          });
 
-        View headerView = navigationView.getHeaderView(0);
+        View headerView = binding.navView.getHeaderView(0);
         TextView headerName = headerView.findViewById(R.id.nav_header_name);
         TextView headerEmail = headerView.findViewById(R.id.nav_header_email);
         CircleImageView headerImg = headerView.findViewById(R.id.nav_header_img);
 
-        db.getReference().child("Users").child(FirebaseAuth.getInstance().getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        db.getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        UserModel userModel = snapshot.getValue(UserModel.class);
+                        userModel = snapshot.getValue(UserModel.class);
 
-                        headerName.setText(userModel.getName());
-                        headerEmail.setText(userModel.getEmail());
-                        Glide.with(MainActivity.this).load(userModel.getProfileImg()).into(headerImg);
+                        if (userModel != null) {
+                            headerName.setText(userModel.getName());
+                            headerEmail.setText(auth.getCurrentUser().getEmail());
+                            Glide.with(MainActivity.this).load(userModel.getProfileImg()).into(headerImg);
+                        }
+                        else{
+                            Toast.makeText(MainActivity.this, "Profile is not yet updated", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override

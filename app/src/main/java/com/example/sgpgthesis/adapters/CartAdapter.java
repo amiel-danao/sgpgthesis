@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.sgpgthesis.CartFragment;
 import com.example.sgpgthesis.R;
 import com.example.sgpgthesis.models.CartModel;
@@ -22,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.Locale;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
@@ -50,22 +52,25 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.name.setText(list.get(position).getProductName());
-        holder.price.setText(list.get(position).getProductPrice());
-        holder.date.setText(list.get(position).getCurrentDate());
-        holder.time.setText(list.get(position).getCurrentTime());
-        holder.quantity.setText(list.get(position).getTotalQuantity());
-        holder.totalPrice.setText(String.valueOf(list.get(position).getTotalPrice()));
+        CartModel item = list.get(position);
+        holder.name.setText(item.getProductName());
+        holder.description.setText(item.getProductDescription());
+        holder.price.setText(item.getProductPrice());
+        holder.quantity.setText(item.getTotalQuantity());
+        double total_price = item.getTotalPrice();
+        holder.totalPrice.setText(context.getResources().getString(R.string.peso_sign, String.format(Locale.ENGLISH, "%.2f", total_price)));
+
+        Glide.with(context).load(item.getProductImage()).into(holder.imageProduct);
+        Glide.with(context).load(item.getImage()).into(holder.imageDesign);
+
 
         holder.deleteItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-
-
                 db.collection("AddToCart").document(auth.getCurrentUser().getUid())
                         .collection("CurrentUser")
-                        .document(list.get(holder.getAdapterPosition()).getDocumentId())
+                        .document(item.getDocumentId())
                         .delete()
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
@@ -94,19 +99,20 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView name, price, date, time, quantity, totalPrice;
-        ImageView deleteItem;
+        TextView name, description, price, quantity, totalPrice;
+        ImageView deleteItem, imageProduct, imageDesign;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             name = itemView.findViewById(R.id.product_name);
+            description = itemView.findViewById(R.id.product_description);
             price = itemView.findViewById(R.id.product_price);
-            date = itemView.findViewById(R.id.product_date);
-            time = itemView.findViewById(R.id.product_time);
             quantity = itemView.findViewById(R.id.total_quantity);
             totalPrice = itemView.findViewById(R.id.total_price);
             deleteItem = itemView.findViewById(R.id.delete);
+            imageProduct = itemView.findViewById(R.id.imageProduct);
+            imageDesign = itemView.findViewById(R.id.imageDesign);
         }
     }
 }

@@ -4,26 +4,47 @@ import java.io.Serializable;
 
 public class CartModel implements Serializable {
     String productName;
+    String productDescription = "";
     String productPrice;
     String currentDate;
     String currentTime;
     String totalQuantity;
     String image;
+    String productImage = "";
     String documentId;
     int totalPrice;
 
     public CartModel() {
     }
 
-    public CartModel(String productName, String productPrice, String currentDate, String currentTime, String totalQuantity, String image, String documentId, int totalPrice) {
+    public CartModel(String productName, String productDescription, String productPrice, String currentDate, String currentTime, String totalQuantity, String image, String productImage, String documentId, int totalPrice) {
         this.productName = productName;
+        this.productDescription = productDescription;
         this.productPrice = productPrice;
         this.currentDate = currentDate;
         this.currentTime = currentTime;
         this.totalQuantity = totalQuantity;
         this.image = image;
+        this.productImage = productImage;
         this.documentId = documentId;
         this.totalPrice = totalPrice;
+    }
+
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
+
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
     }
 
     public String getImage() {

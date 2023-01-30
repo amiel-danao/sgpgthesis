@@ -1,18 +1,68 @@
 package com.example.sgpgthesis.models;
 
-public class UserModel {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class UserModel implements Parcelable{
     String name;
-    String email;
-    String password;
     String profileImg;
+    String phoneNumber;
+    String address;
+    String gender;
 
     public UserModel() {
     }
 
-    public UserModel(String name, String email, String password) {
+    public UserModel(String name, String phoneNumber, String address, String gender, String profileImg) {
         this.name = name;
-        this.email = email;
-        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.gender = gender;
+        this.profileImg = profileImg;
+    }
+
+    protected UserModel(Parcel in) {
+        name = in.readString();
+        profileImg = in.readString();
+        phoneNumber = in.readString();
+        address = in.readString();
+        gender = in.readString();
+    }
+
+    public static final Creator<UserModel> CREATOR = new Creator<UserModel>() {
+        @Override
+        public UserModel createFromParcel(Parcel in) {
+            return new UserModel(in);
+        }
+
+        @Override
+        public UserModel[] newArray(int size) {
+            return new UserModel[size];
+        }
+    };
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getName() {
@@ -23,21 +73,6 @@ public class UserModel {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public String getProfileImg() {
         return profileImg;
@@ -45,5 +80,19 @@ public class UserModel {
 
     public void setProfileImg(String profileImg) {
         this.profileImg = profileImg;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(name);
+        parcel.writeString(phoneNumber);
+        parcel.writeString(address);
+        parcel.writeString(gender);
+        parcel.writeString(profileImg);
     }
 }
