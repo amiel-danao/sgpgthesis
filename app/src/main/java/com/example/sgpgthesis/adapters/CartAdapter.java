@@ -56,7 +56,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         holder.name.setText(item.getProductName());
         holder.description.setText(item.getProductDescription());
 
-        if (item.getOrigPrice() != item.getTotalPrice()) {
+        if (item.getOrigPrice() != item.getTotalPrice() && item.getOrigPrice() > 0) {
             holder.price.setText(String.valueOf(context.getResources().getString(R.string.peso_sign, String.format(Locale.ENGLISH, "%.2f", item.getOrigPrice()))));
             holder.price.setPaintFlags(holder.price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.price.setVisibility(View.VISIBLE);

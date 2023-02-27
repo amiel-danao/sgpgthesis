@@ -7,10 +7,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +26,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.sgpgthesis.R;
+import com.example.sgpgthesis.adapters.DiscountAdapter;
+import com.example.sgpgthesis.models.Discount;
 import com.example.sgpgthesis.models.NavDrinkwareModel;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,13 +35,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -50,7 +59,8 @@ public class DrinkwareDetailsActivity extends AppCompatActivity {
     private Uri uri;
 
     int totalQuantity = 1;
-    int totalPrice = 0;
+    float totalPrice = 0;
+    private float origPrice;
 
     Toolbar toolbar;
 
@@ -60,6 +70,12 @@ public class DrinkwareDetailsActivity extends AppCompatActivity {
     NavDrinkwareModel navDrinkwareModel = null;
     Context context;
     View loadingIndicator;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
+    private DiscountAdapter mAdapter;
+    protected ArrayList<Discount> discounts;
+    private TextView discountedPrice;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +125,7 @@ public class DrinkwareDetailsActivity extends AppCompatActivity {
         rating = findViewById(R.id.detailed_rating);
         description = findViewById(R.id.detailed_desc);
         loadingIndicator = findViewById(R.id.loadingIndicator);
+        discountedPrice = findViewById(R.id.discounted_price);
 
         if (navDrinkwareModel != null){
             Glide.with(getApplicationContext()).load(navDrinkwareModel.getImg_url()).into(detailedImg);
@@ -132,6 +149,7 @@ public class DrinkwareDetailsActivity extends AppCompatActivity {
                 totalQuantity = Math.min(10, totalQuantity+1);
                 totalPrice = navDrinkwareModel.getPrice() * totalQuantity;
                 quantity.setText(String.valueOf(totalQuantity));
+                updateActualPriceWithDiscount();
             }
         });
 
@@ -141,8 +159,61 @@ public class DrinkwareDetailsActivity extends AppCompatActivity {
                 totalQuantity = Math.max(1, totalQuantity-1);
                 totalPrice = navDrinkwareModel.getPrice() * totalQuantity;
                 quantity.setText(String.valueOf(totalQuantity));
+                updateActualPriceWithDiscount();
             }
         });
+
+        discounts = new ArrayList<>();
+        mRecyclerView = (RecyclerView) findViewById(R.id.discountRecyclerView);
+        db.collection("Discounts")
+        .whereEqualTo("id", navDrinkwareModel.getId()).get()
+        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for(DocumentSnapshot documentSnapshot:task.getResult().getDocuments()){
+                    Discount discount = documentSnapshot.toObject(Discount.class);
+                    discounts.add(discount);
+                }
+                if (!discounts.isEmpty()) {
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                    mLayoutManager = new LinearLayoutManager(getApplicationContext());
+                    mRecyclerView.setLayoutManager(mLayoutManager);
+                    mAdapter = new DiscountAdapter(discounts);
+                    // Set CustomAdapter as the adapter for RecyclerView.
+                    mRecyclerView.setAdapter(mAdapter);
+                }
+            }
+        });
+    }
+
+    void updateActualPriceWithDiscount(){
+        discountedPrice.setVisibility(View.GONE);
+        price.setPaintFlags(price.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        price.setTextColor(Color.BLACK);
+        int qty = Integer.parseInt(quantity.getText().toString());
+        totalPrice = navDrinkwareModel.getPrice() * qty;
+        origPrice = totalPrice;
+        price.setText("Price: ₱" + origPrice);
+        if (discounts.isEmpty()){
+            return;
+        }
+
+        float overallDiscountPercent = 0;
+
+        for (Discount discount : discounts) {
+            if(discount.getMin_quantity() <= qty && discount.getMax_quantity() >= qty){
+                overallDiscountPercent += discount.getPercent();
+            }
+        }
+        if (overallDiscountPercent <= 0){
+            return;
+        }
+
+        totalPrice = Math.max(0, origPrice - (origPrice * (overallDiscountPercent/100)));
+        discountedPrice.setText("Price: ₱" + totalPrice);
+        discountedPrice.setVisibility(View.VISIBLE);
+        price.setPaintFlags(price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        price.setTextColor(Color.RED);
     }
 
     ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
@@ -231,6 +302,8 @@ public class DrinkwareDetailsActivity extends AppCompatActivity {
         cartMap.put("currentTime",saveCurrentTime);
         cartMap.put("totalQuantity",String.valueOf(totalQuantity));
         cartMap.put("totalPrice",totalPrice);
+        cartMap.put("origPrice", origPrice);
+        cartMap.put("productImage", navDrinkwareModel.getImg_url());
 
         db.collection("AddToCart").document(auth.getCurrentUser().getUid())
                 .collection("CurrentUser").add(cartMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {

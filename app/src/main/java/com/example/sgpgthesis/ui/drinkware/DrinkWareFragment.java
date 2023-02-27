@@ -59,6 +59,7 @@ public class DrinkWareFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 NavDrinkwareModel navDrinkwareModel = document.toObject(NavDrinkwareModel.class);
+                                navDrinkwareModel.setId(document.getId());
                                 if (!navDrinkwareModel.getName().isEmpty()) {
                                     drinkwareModelList.add(navDrinkwareModel);
                                     navDrinkwareAdapter.notifyDataSetChanged();

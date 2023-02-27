@@ -295,14 +295,15 @@ public class DetailedActivity extends AppCompatActivity {
 
         final HashMap<String,Object> cartMap = new HashMap<>();
 
+        cartMap.put("productId",viewAllModel.getId());
         cartMap.put("productName",viewAllModel.getName());
         cartMap.put("productPrice",price.getText().toString());
         cartMap.put("productDescription", viewAllModel.getDescription());
         cartMap.put("currentDate",saveCurrentDate);
         cartMap.put("currentTime",saveCurrentTime);
         cartMap.put("totalQuantity", String.valueOf(totalQuantity));
-        cartMap.put("origPrice", origPrice);
         cartMap.put("totalPrice", totalPrice);
+        cartMap.put("origPrice", origPrice);
         cartMap.put("productImage", viewAllModel.getImg_url());
 
         db.collection("AddToCart").document(auth.getCurrentUser().getUid())

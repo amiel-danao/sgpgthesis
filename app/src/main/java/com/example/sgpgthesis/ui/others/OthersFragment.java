@@ -61,6 +61,7 @@ public class OthersFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 NavOthersModel navOthersModel = document.toObject(NavOthersModel.class);
+                                navOthersModel.setId(document.getId());
                                 if (!navOthersModel.getName().isEmpty()) {
                                     othersModelList.add(navOthersModel);
                                 }

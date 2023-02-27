@@ -3,6 +3,7 @@ package com.example.sgpgthesis.models;
 import java.io.Serializable;
 
 public class NavOthersModel implements Serializable {
+    String id;
     String name = "";
     String description;
     String img_url;
@@ -13,7 +14,8 @@ public class NavOthersModel implements Serializable {
     public NavOthersModel() {
     }
 
-    public NavOthersModel(String name, String description, String img_url, String type, String rating, int price) {
+    public NavOthersModel(String id, String name, String description, String img_url, String type, String rating, int price) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.img_url = img_url;
@@ -68,5 +70,13 @@ public class NavOthersModel implements Serializable {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

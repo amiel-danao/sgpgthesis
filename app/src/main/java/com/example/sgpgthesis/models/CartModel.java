@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class CartModel implements Serializable {
     String productName;
+    String productId;
     String productDescription = "";
     String productPrice;
     String currentDate;
@@ -18,8 +19,9 @@ public class CartModel implements Serializable {
     public CartModel() {
     }
 
-    public CartModel(String productName, String productDescription, String productPrice, String currentDate, String currentTime, String totalQuantity, String image, String productImage, String documentId, float origPrice, float totalPrice) {
+    public CartModel(String productName, String productId, String productDescription, String productPrice, String currentDate, String currentTime, String totalQuantity, String image, String productImage, String documentId, float origPrice, float totalPrice) {
         this.productName = productName;
+        this.productId = productId;
         this.productDescription = productDescription;
         this.productPrice = productPrice;
         this.currentDate = currentDate;
@@ -118,5 +120,13 @@ public class CartModel implements Serializable {
 
     public void setOrigPrice(float origPrice) {
         this.origPrice = origPrice;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 }
