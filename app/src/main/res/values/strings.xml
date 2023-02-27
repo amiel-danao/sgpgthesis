@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">sgpgthesis</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="drinkware">Drink Ware</string>
+    <string name="others">Others</string>
+    <string name="other_products">Other Products</string>
+    <string name="drink_ware_products">Drink Ware Products</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="profile">Profile</string>
+    <string name="about_us">About Us</string>
+    <string name="description">Description</string>
+    <string name="Cart">fragment_cart</string>
+    <string name="my_cart">My Cart</string>
+    <string name="my_orders">My Orders</string>
+    <string name="logout">Log Out</string>
+    <string name="gender_text">gender</string>
+    <string name="resend_email_text">Didn\'t receive an email?\nClick here to resend email verification</string>
+    <string name="product_label">Product</string>
+    <string name="design_label">Design</string>
+    <string name="peso_sign">₱%1$s</string>
+    <string name="order_date">Order Date%1$s</string>
+    <string name="quantity_label">Qty</string>
+    <string name="price_label">Price</string>
+    <string name="x">x</string>
+    <string name="shipping_information_label">Shipping Information</string>
+    <string name="item_label">%1$d item%2$s</string>
+    <string name="scroll_view">Scroll View</string>
+    <string name="remove_button">Remove Button</string>
+</resources>
